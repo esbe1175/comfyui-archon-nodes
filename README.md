@@ -71,3 +71,7 @@ If credentials are missing, Booru Roulette raises a clear runtime error.
 - `booru_roulette_config.json` is intentionally gitignored.
 - Do not commit real API keys.
 - If an API key was ever committed, rotate/revoke it in Gelbooru immediately.
+
+## Credits
+
+- Booru randomizer concept inspired in spirit by Inzaniak's Ranbooru node: https://github.com/Inzaniak/comfyui-ranbooru
