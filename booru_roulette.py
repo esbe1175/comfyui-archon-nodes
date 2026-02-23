@@ -44,6 +44,25 @@ FIRST_KNOWN_YEAR = min(YEAR_START_IDS.keys())
 LATEST_KNOWN_YEAR = max(YEAR_START_IDS.keys())
 LATEST_KNOWN_ID = YEAR_START_IDS[LATEST_KNOWN_YEAR]
 
+HTTP_STATUS_HINTS = {
+    400: "bad request (query format is invalid).",
+    401: "unauthorized (credentials are missing or invalid).",
+    403: "forbidden (request blocked; may be Cloudflare or missing permissions).",
+    404: "not found (endpoint or resource does not exist).",
+    408: "request timeout (server took too long to respond).",
+    409: "conflict (request conflicts with current server state).",
+    429: "rate limited (too many requests; slow down and retry).",
+    500: "internal server error (server-side failure).",
+    502: "bad gateway (upstream server error).",
+    503: "service unavailable (temporary outage or protection challenge).",
+    504: "gateway timeout (upstream server timed out).",
+    520: "Cloudflare unknown origin error (unexpected upstream response).",
+    521: "Cloudflare origin down (origin server refused connection).",
+    522: "Cloudflare connection timeout (origin did not respond in time).",
+    523: "Cloudflare origin unreachable (routing/DNS issue to origin).",
+    524: "Cloudflare timeout after connect (origin too slow to answer).",
+}
+
 
 class QueryError(RuntimeError):
     def __init__(self, message, raw_request=""):
@@ -207,6 +226,15 @@ def _candidate_image_urls(post, preview_only):
     return out
 
 
+def _format_http_error(status_code, context, response_text=""):
+    hint = HTTP_STATUS_HINTS.get(int(status_code), "unexpected HTTP error.")
+    detail = f"{context} failed (HTTP {status_code}: {hint})"
+    snippet = str(response_text or "").strip().replace("\n", " ")[:180]
+    if snippet:
+        detail += f" Response: {snippet!r}"
+    return detail
+
+
 def _http_get_with_cf_fallback(url, headers, timeout):
     res = requests.get(url, headers=headers, timeout=timeout)
     body_start = (res.text or "")[:200].lower() if hasattr(res, "text") else ""
@@ -237,7 +265,13 @@ def _fetch_post_image(post, preview_only):
             }
             res = _http_get_with_cf_fallback(url, headers=headers, timeout=30)
             if res.status_code >= 400:
-                raise RuntimeError(f"HTTP {res.status_code}")
+                raise RuntimeError(
+                    _format_http_error(
+                        res.status_code,
+                        "Image download",
+                        response_text=getattr(res, "text", ""),
+                    )
+                )
             ctype = (res.headers.get("content-type") or "").lower()
             if ctype and "image" not in ctype:
                 raise RuntimeError(f"Non-image response content-type={ctype}")
@@ -359,14 +393,25 @@ def _gelbooru_posts_query(config, tags, limit):
     request_preview_params = {k: v for k, v in params.items() if k not in ("user_id", "api_key")}
     request_preview = f"{GELBOORU_API_BASE}?{urlencode(request_preview_params)}"
 
-    res = requests.get(
-        GELBOORU_API_BASE,
-        params=params,
-        headers={"User-Agent": DEFAULT_USER_AGENT},
-        timeout=30,
-    )
+    try:
+        res = requests.get(
+            GELBOORU_API_BASE,
+            params=params,
+            headers={"User-Agent": DEFAULT_USER_AGENT},
+            timeout=30,
+        )
+    except requests.RequestException as e:
+        raise QueryError(f"Gelbooru API request failed: {e.__class__.__name__}: {e}", request_preview) from e
+
     if res.status_code >= 400:
-        raise QueryError(f"Gelbooru API error {res.status_code}: {res.text[:200]!r}", request_preview)
+        raise QueryError(
+            _format_http_error(
+                res.status_code,
+                "Gelbooru API request",
+                response_text=getattr(res, "text", ""),
+            ),
+            request_preview,
+        )
     data = res.json()
     posts = data.get("post", []) if isinstance(data, dict) else []
     if isinstance(posts, dict):
