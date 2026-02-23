@@ -1,0 +1,46 @@
+# Python bytecode/cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtualenv/tooling
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Local logs/runtime output
+*.log
+logs/
+tmp/
+temp/
+
+# Sensitive/local configuration
+booru_roulette_config.json
+.env
+.env.*
+*.secret
+*.secrets
+secrets/
+
+# Generated media/workflow artifacts
+output/
+outputs/
+input/
+inputs/
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.bmp
+*.tiff
+*.jsonl
+*.sqlite
