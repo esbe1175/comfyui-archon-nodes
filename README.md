@@ -13,8 +13,6 @@
 - `MergeGeneralTags`
 - `BooruRouletteNode`
 
-Node names were cleaned to remove old `WK`/`WELLKEPT` branding.
-
 ## Installation
 
 1. Clone this repository into your ComfyUI `custom_nodes` folder:
