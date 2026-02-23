@@ -1,0 +1,19 @@
+[project]
+name = "comfyui-archon-nodes"
+version = "1.0.0"
+description = "ComfyUI custom node suite combining resolution/prompt nodes and Booru Roulette."
+license = { text = "MIT License" }
+dependencies = [
+  "requests>=2.31.0",
+  "cloudscraper>=1.2.71"
+]
+classifiers = [
+  "Operating System :: OS Independent"
+]
+
+[project.urls]
+Repository = "https://github.com/esbe1175/comfyui-archon-nodes"
+
+[tool.comfy]
+PublisherId = "esbe1175"
+DisplayName = "ComfyUI Archon Nodes"
