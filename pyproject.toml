@@ -15,5 +15,5 @@ classifiers = [
 Repository = "https://github.com/esbe1175/comfyui-archon-nodes"
 
 [tool.comfy]
-PublisherId = "esbe1175"
+PublisherId = "archon"
 DisplayName = "ComfyUI Archon Nodes"
