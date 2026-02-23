@@ -44,3 +44,4 @@ inputs/
 *.tiff
 *.jsonl
 *.sqlite
+node.zip
