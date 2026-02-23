@@ -30,6 +30,20 @@ pip install -r ComfyUI/custom_nodes/comfyui-archon-nodes/requirements.txt
 
 3. Restart ComfyUI.
 
+## Registry auto-publish (GitHub Actions)
+
+This repo includes `.github/workflows/publish-node.yml` to auto-publish new node versions to the Comfy Registry.
+
+Required GitHub secret:
+
+- `REGISTRY_ACCESS_TOKEN`: your Comfy Registry personal access token
+
+Release flow:
+
+1. Bump `version` in `pyproject.toml`
+2. Commit + push to `main`
+3. GitHub Action publishes that version to the registry
+
 ## Booru Roulette setup (Gelbooru account required)
 
 `BooruRouletteNode` expects Gelbooru API credentials. Configure one of the two methods below.
